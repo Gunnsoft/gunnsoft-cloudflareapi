@@ -75,16 +75,17 @@ Task("Pack")
     {
         CreateDirectory(artifactsDirectory);
 
-        var artifactFilePath = $@"{artifactsDirectory}\gunnsoft-cloudflareapi.nupkg";
+        CopyFile($@".\src\Gunnsoft.CloudflareApi\bin\{configuration}\Gunnsoft.CloudflareApi.{version}.nupkg", $@"{artifactsDirectory}\gunnsoft-cloudflareapi.nupkg"); 
         
-        CopyFile($@".\src\Gunnsoft.CloudflareApi\bin\{configuration}\Gunnsoft.CloudflareApi.{version}.nupkg", artifactFilePath); 
-        
-        if (AppVeyor.IsRunningOnAppVeyor)
-        {
-            AppVeyor.UploadArtifact(artifactFilePath, new AppVeyorUploadArtifactsSettings
+        foreach (var filePath in GetFiles($@"{artifactsDirectory}\*.*")) 
+        { 
+            if (AppVeyor.IsRunningOnAppVeyor)
             {
-                DeploymentName = "gunnsoft-cloudflareapi"
-            });
+                AppVeyor.UploadArtifact(filePath, new AppVeyorUploadArtifactsSettings
+                {
+                    DeploymentName = filePath.GetFilename().ToString()
+                });
+            }
         }
     });
 
